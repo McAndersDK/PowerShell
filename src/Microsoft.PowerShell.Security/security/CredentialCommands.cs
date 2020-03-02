@@ -78,6 +78,7 @@ namespace Microsoft.PowerShell.Commands
         }
 
         private string _title = UtilsStrings.PromptForCredential_DefaultCaption;
+        private string _oldTitle = null;
 
         /// <summary>
         /// Initializes a new instance of the GetCredentialCommand
@@ -97,9 +98,10 @@ namespace Microsoft.PowerShell.Commands
                 WriteObject(Credential);
                 return;
             }
-
+            _oldTitle = this.Host.UI.RawUI.WindowTitle;
             try
             {
+                this.Host.UI.RawUI.WindowTitle = _title;
                 Credential = this.Host.UI.PromptForCredential(_title, _message, _userName, string.Empty);
             }
             catch (ArgumentException exception)
@@ -107,7 +109,7 @@ namespace Microsoft.PowerShell.Commands
                 ErrorRecord errorRecord = new ErrorRecord(exception, "CouldNotPromptForCredential", ErrorCategory.InvalidOperation, null);
                 WriteError(errorRecord);
             }
-
+            this.Host.UI.RawUI.WindowTitle = _oldTitle;
             if (Credential != null)
             {
                 WriteObject(Credential);
